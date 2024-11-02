@@ -1,4 +1,4 @@
-# WhatsApp MD User Bot
+# Killer MD User Bot
 
 A simple WhatsApp User bot.
 
