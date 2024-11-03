@@ -1,13 +1,13 @@
 {
-  "name": "levanter@5.2.3",
-  "description": "",
+  "name": "KILLER MD",
+  "description": "LIVE URE FULLEST",
   "keywords": ["noedjs"],
   "success_url": "/",
   "env": {
     "ALWAYS_ONLINE": {
       "description": "show bot number last seen as online",
       "required": false,
-      "value": "false"
+      "value": "true"
     },
     "LOG_MSG": {
       "description": "Show whatsapp msgs in log",
@@ -22,7 +22,7 @@
     "PREFIX": {
       "description": "prefix, check for more",
       "required": false,
-      "value": "."
+      "value": "@"
     },
     "SESSION_ID": {
       "description": "session id",
@@ -32,7 +32,7 @@
     "STICKER_PACKNAME": {
       "description": "sticker pack info",
       "required": false,
-      "value": "❤️,LyFE"
+      "value": "MISTAH X"
     },
     "HEROKU_APP_NAME": {
       "description": "Heroku app name, same as above entered.",
@@ -55,7 +55,7 @@
     "WARN_LIMIT": {
       "description": "Maximum number of wanings to a person.",
       "required": false,
-      "value": "3"
+      "value": "2"
     },
     "FORCE_LOGOUT": {
       "description": "In Some scenario have to logout web, Only such case make this true and back to false after logout.",
@@ -100,12 +100,12 @@
     "AUTO_STATUS_VIEW": {
       "description": "view others status",
       "required": false,
-      "value": "false"
+      "value": "true"
     },
     "SEND_READ": {
       "description": "send blue tick",
       "required": false,
-      "value": "false"
+      "value": "true"
     },
     "AJOIN": {
       "description": "Accept Group join request(Group privacy)",
