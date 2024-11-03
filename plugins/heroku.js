@@ -1,125 +1,89 @@
-const got = require('got')
-const Heroku = require('heroku-client')
-const {
-  secondsToHms,
-  isUpdate,
-  updateNow,
-  bot,
-  // genButtonMessage,
-} = require('../lib/')
-const Config = require('../config')
-const heroku = new Heroku({ token: Config.HEROKU_API_KEY })
-const baseURI = '/apps/' + Config.HEROKU_APP_NAME
+const { zokou } = require('../framework/zokou');
+const s = require('../set')
 
-if (Config.HEROKU_API_KEY && Config.HEROKU_APP_NAME) {
-  bot(
-    {
-      pattern: 'restart',
-      desc: 'Restart Dyno',
-      type: 'heroku',
-    },
-    async (message, match) => {
-      await message.send(`_Restarting_`)
-      await heroku.delete(baseURI + '/dynos').catch(async (error) => {
-        await message.send(`HEROKU : ${error.body.message}`)
-      })
-    }
-  )
 
-  bot(
+zokou(
     {
-      pattern: 'shutdown',
-      desc: 'Dyno off',
-      type: 'heroku',
-    },
-    async (message, match) => {
-      await heroku
-        .get(baseURI + '/formation')
-        .then(async (formation) => {
-          await message.send(`_Shuttind down._`)
-          await heroku.patch(baseURI + '/formation/' + formation[0].id, {
-            body: {
-              quantity: 0,
-            },
-          })
-        })
-        .catch(async (error) => {
-          await message.send(`HEROKU : ${error.body.message}`)
-        })
-    }
-  )
+        nomCom : "setvar",
+        categorie : "heroku"
+    }, async (dest , zk , commandeOptions) =>{
 
-  bot(
-    {
-      pattern: 'dyno',
-      desc: 'Show Quota info',
-      type: 'heroku',
-    },
-    async (message, match) => {
-      try {
-        heroku
-          .get('/account')
-          .then(async (account) => {
-            const url = `https://api.heroku.com/accounts/${account.id}/actions/get-quota`
-            headers = {
-              'User-Agent': 'Chrome/80.0.3987.149 Mobile Safari/537.36',
-              Authorization: 'Bearer ' + Config.HEROKU_API_KEY,
-              Accept: 'application/vnd.heroku+json; version=3.account-quotas',
-            }
-            const res = await got(url, { headers })
-            const resp = JSON.parse(res.body)
-            const total_quota = Math.floor(resp.account_quota)
-            const quota_used = Math.floor(resp.quota_used)
-            const remaining = total_quota - quota_used
-            const quota = `Total Quota : ${secondsToHms(total_quota)}
-Used  Quota : ${secondsToHms(quota_used)}
-Remaning    : ${secondsToHms(remaining)}`
-            await message.send('```' + quota + '```')
-          })
-          .catch(async (error) => {
-            return await message.send(`HEROKU : ${error.body.message}`)
-          })
-      } catch (error) {
-        await message.send(error)
-      }
+       const {ms,repondre,superUser , arg} = commandeOptions ;
+       
+       if(!superUser){repondre('only Mods can use this commande');return};
+       if(!arg[0] || !(arg.join('').split('='))) {repondre('Bad format ; Exemple of using :\nSetvar OWNER_NAME=Ibrahim Adams');return};
+     
+    const text = arg.join(" ")
+     const Heroku = require("heroku-client");
+   
+     const heroku = new Heroku({
+        token: s.HEROKU_APY_KEY,
+      });
+
+     let baseURI = "/apps/" + s.HEROKU_APP_NAME;
+        await heroku.patch(baseURI + "/config-vars", {
+          body: {
+                  [text.split('=')[0]]: text.split('=')[1],
+          },
+        });
+        await repondre('Heroku var changes , rebootings....')
     }
-  )
+);
+
+zokou(
+    {
+        nomCom : "allvar",
+        categorie : "heroku"
+    }, async (dest , zk , commandeOptions) =>{
+
+       const {ms,repondre,superUser , arg} = commandeOptions ;
+       
+       if(!superUser){repondre('only mods can use this commande');return}; 
+      
+            const Heroku = require("heroku-client");
+
+			const heroku = new Heroku({
+				token: s.HEROKU_APY_KEY,
+			});
+			let baseURI = "/apps/" + s.HEROKU_APP_NAME;
+
+            let h = await heroku.get(baseURI+'/config-vars')
+let str = '*BMW WABOT VARS*\n\n'
+for (vr in h) {
+str+= '🚘 *'+vr+'* '+'= '+h[vr]+'\n'
+}
+ repondre(str)
+
+
 }
 
-bot(
-  {
-    pattern: 'update$',
-    desc: 'Check new updates.',
-    type: 'heroku',
-  },
-  async (message, match) => {
-    const update = await isUpdate()
-    if (!update.length) return await message.send('*Bot is up-to-date.*')
-    await message.send(`${update.length} updates\n\n${update.join('\n').trim()}`)
-    // return await message.send(
-    // 	await genButtonMessage(
-    // 		[{ id: 'update now', text: 'UPDATE NOW' }],
-    // 		`*Updates*\n${update.join('\n').trim()}`,
-    // 		`${update.length} updates`
-    // 	),
-    // 	{},
-    // 	'button'
-    // )
-  }
-)
+);       
 
-bot(
-  {
-    pattern: 'update now$',
-    desc: 'To-Up-Date bot.',
-    type: 'heroku',
-  },
-  async (message, match) => {
-    const isupdate = await isUpdate()
-    if (!isupdate.length) return await message.send('*Bot is up-to-date.*\n*Nothing to Update.*')
-    await message.send('_Updating..._')
-    const e = await updateNow()
-    if (e) return await message.send(e)
-    return await message.send('_Updated_')
-  }
-)
+
+    zokou(
+        {
+            nomCom : "getvar",
+            categorie : "heroku"
+        }, async (dest , zk , commandeOptions) =>{
+    
+           const {ms,repondre,superUser , arg} = commandeOptions ;
+           
+           if(!superUser){repondre('Only Mods can use this command');return}; 
+           if(!arg[0]) {repondre('insert the variable name in capital letter'); return} ;
+      
+           try {
+            const Heroku = require("heroku-client");
+               
+            const heroku = new Heroku({
+              token: s.HEROKU_APY_KEY,
+            });
+            let baseURI = "/apps/" + s.HEROKU_APP_NAME;
+        let h = await heroku.get(baseURI+'/config-vars')
+        for (vr in h) {
+        if( arg.join(' ') ===vr ) return  repondre( vr+'= '+h[vr]) 	;
+        } 
+        
+        } catch(e) {repondre('Error' + e)}
+   
+        });
+

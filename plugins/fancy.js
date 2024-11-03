@@ -1,19 +1,24 @@
-const { bot, textToStylist, fontType, stylishTextGen } = require('../lib')
-bot(
-  {
-    pattern: 'fancy ?(.*)',
-    desc: 'Creates fancy text from given text',
-    type: 'misc',
-  },
-  async (message, match) => {
-    if (
-      !match ||
-      (message.reply_message.text && (!match || isNaN(match) || match < 1 || match > 47))
-    )
-      return await message.send('*Example :*\nfancy Hi\nfancy 7 replying text msg')
-    if (message.reply_message.text) {
-      return await message.send(textToStylist(message.reply_message.text, fontType(match)))
+const { zokou } = require("../framework/zokou");
+const fancy = require("../Anyway/style");
+
+zokou({ nomCom: "fancy", categorie: "Fun", reaction: "〽️" }, async (dest, zk, commandeOptions) => {
+    const { arg, repondre, prefixe } = commandeOptions;
+    const id = arg[0]?.match(/\d+/)?.join('');
+    const text = arg.slice(1).join(" ");
+
+    try {
+        if (id === undefined || text === undefined) {
+            return await repondre(`\nExemple : ${prefixe}fancy 10 Anyway-Md\n` + String.fromCharCode(8206).repeat(4001) + fancy.list('ANYWAY-MD', fancy));
+        }
+
+        const selectedStyle = fancy[parseInt(id) - 1];
+        if (selectedStyle) {
+            return await repondre(fancy.apply(selectedStyle, text));
+        } else {
+            return await repondre('_Style introuvable :(_');
+        }
+    } catch (error) {
+        console.error(error);
+        return await repondre('_Une erreur s\'est produite :(_');
     }
-    return await message.send(stylishTextGen(match))
-  }
-)
+});
